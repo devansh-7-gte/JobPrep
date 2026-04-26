@@ -1,15 +1,10 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter} from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { ThemeProvider } from "@/components/ui/Theme-provider";
+import Header from "@/components/Header";
+import { ClerkProvider } from "@clerk/nextjs";
+import page from "./page";
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata = {
   title: "Create Next App",
@@ -18,12 +13,26 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+   <ClerkProvider>
+    <html lang="en"suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.className}`}
       >
+         <ThemeProvider attribute = "class"
+         defaultTheme = "dark">
+          <Header />
+          <main className="min-h-screen bg-zinc-50 dark:bg-black">
+            
         {children}
+        </main>
+        <footer className="bg-muted/50 py-12 ">
+         <div className="container mx-auto px-4 text-center text-gray-200">
+          <p>For any Information reach out to github.com/devansh-7-gte</p>
+         </div> 
+        </footer>
+        </ThemeProvider>
       </body>
     </html>
+    </ClerkProvider>
   );
 }

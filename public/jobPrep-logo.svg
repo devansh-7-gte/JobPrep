@@ -1,0 +1,39 @@
+<svg width="420" height="120" viewBox="0 0 420 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon Background -->
+  <rect x="10" y="20" rx="18" ry="18" width="80" height="80" fill="url(#grad)"/>
+
+  <!-- Briefcase -->
+  <rect x="28" y="50" width="44" height="26" rx="4" fill="#ffffff"/>
+  <rect x="40" y="42" width="20" height="10" rx="3" fill="#ffffff"/>
+
+  <!-- Market / AI Nodes -->
+  <circle cx="30" cy="84" r="3" fill="#ffffff"/>
+  <circle cx="50" cy="90" r="3" fill="#ffffff"/>
+  <circle cx="70" cy="84" r="3" fill="#ffffff"/>
+
+  <line x1="30" y1="84" x2="50" y2="90" stroke="#ffffff" stroke-width="1.5"/>
+  <line x1="50" y1="90" x2="70" y2="84" stroke="#ffffff" stroke-width="1.5"/>
+
+  <!-- Brand Name -->
+  <text x="110" y="70"
+        font-family="Inter, Arial, sans-serif"
+        font-size="40"
+        font-weight="700">
+    <tspan fill="#ffffff">Job</tspan><tspan fill="#7C3AED">Prep</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="112" y="95"
+        font-family="Inter, Arial, sans-serif"
+        font-size="14"
+        fill="#6B7280">
+    AI Job Insights &amp; Market Trends
+  </text>
+</svg>
