@@ -2,16 +2,20 @@
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/prisma';
 import { GoogleGenAI } from '@google/genai';
+import { revalidatePath } from 'next/cache';
+
 const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
 export async function saveResume(content) {
-    
-   const userId = await auth();
-    if (!userId) throw new Error("Unauthorized");
-    const user = await db.user.findUnique({
-        where: {clerkUserId: userId},
-    })
-    if(!user) throw new Error("User Not Found");
-      try {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) throw new Error("User not found");
+
+  try {
     const resume = await db.resume.upsert({
       where: {
         userId: user.id,
@@ -60,19 +64,21 @@ export async function improveWithAI({ current, type }) {
   });
 
   if (!user) throw new Error("User not found");
-  const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+
+  try {
+    const improveWithAIFetch = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
             {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                contents: [
-                  {
-                    parts: [
-                      {
-                        text: `
+              parts: [
+                {
+                  text: `
         As an expert resume writer, improve the following ${type} description for a ${user.industry} professional.
     Make it more impactful, quantifiable, and aligned with industry standards.
     Current content: "${current}"
@@ -87,20 +93,27 @@ export async function improveWithAI({ current, type }) {
     
     Format the response as a single paragraph without any additional text or explanations.
     `,
-                      },
-                    ],
-                  },
-                ],
-              }),
-            }
-          );
+                },
+              ],
+            },
+          ],
+        }),
+      }
+    );
 
-          if (!response.ok) {
-            throw new Error(`API failed: ${response.status}`);
-          }
+    const response = await improveWithAIFetch;
+    if (!response.ok) {
+      throw new Error(`API failed: ${response.status}`);
+    }
 
-          const result = await response;
-          const improvedText= result?.candidates?.[0]?.content?.parts?.[0]?.text().trim() || "Keep up the good work! Consider adding more specific achievements and quantifiable results to make it stand out even more.";
-            return improvedText;
+    const improveJson = await response.json();
+    const improvedText =
+      improveJson?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      "Keep up the good work! Consider adding more specific achievements and quantifiable results to make it stand out even more.";
 
+    return improvedText;
+  } catch (error) {
+    console.error("Error improving resume with AI:", error.message);
+    throw new Error("Failed to improve resume");
+  }
 }
